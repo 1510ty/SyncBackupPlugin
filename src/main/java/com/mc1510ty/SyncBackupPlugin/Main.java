@@ -5,12 +5,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.gradle.internal.impldep.org.eclipse.jgit.util.IO;
 
-import javax.swing.*;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
@@ -165,7 +161,6 @@ public class Main extends JavaPlugin {
         // target: コピー先フォルダ
         try {
             Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
-
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     // コピー先に同じフォルダ構造を作る
@@ -236,19 +231,31 @@ public class Main extends JavaPlugin {
 
     private void deleteFolder(Path folder)  {
         if (!Files.exists(folder)) return;
-        Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
+        try {
+            Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    try {
+                        Files.delete(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc)  {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                    try {
+                        Files.delete(dir);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
