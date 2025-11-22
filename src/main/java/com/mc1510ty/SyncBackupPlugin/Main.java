@@ -4,8 +4,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -14,13 +17,34 @@ import java.util.zip.ZipOutputStream;
 
 public class Main extends JavaPlugin {
 
-    String language = "ja";
+    Path langfolder = Path.of(getDataFolder() + File.separator + "lang");
+    String language;
+    private FileConfiguration lang;
 
     @Override
     public void onEnable() {
+        saveDefaultLang();
         crontask();
+    }
+
+    private void saveDefaultLang() {
+
+
+
+        if (!Files.exists(langfolder)) {
+            Files.createDirectory(langfolder);
+        }
 
     }
+
+    private void Loadlang() {
+
+        File langFile = new File(getDataFolder(), "lang" + File.separator + language + ".yml");
+        lang = YamlConfiguration.loadConfiguration(langFile);
+
+    }
+
+
 
     public void crontask() {
 
@@ -256,6 +280,12 @@ public class Main extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void senderror(String error, String Exception) {
+
+
+
     }
 
 
