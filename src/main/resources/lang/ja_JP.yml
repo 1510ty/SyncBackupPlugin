@@ -1,0 +1,6 @@
+plugin:
+  enable: SyncBackupPluginが有効化されました
+  disable: SyncBackupPluginが無効化されました
+error:
+  backupfailed: バックアップに失敗しました
+  causeplayer: バックアップに失敗しました 管理者に確認してください

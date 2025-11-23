@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -341,10 +342,18 @@ public class Main extends JavaPlugin {
         }
     }
 
-    private void senderror(String error, String Exception) {
+    private void SendError(String ServerMessage, String ServerExplanation, String PlayerMessage, String Error) {
 
+        Bukkit.getServer().sendMessage(Component.text(Objects.requireNonNull(lang.getString("error.backupfailed")), NamedTextColor.RED)//エラーメッセージ
+                .append(Component.text("\n"))
+                .append(Component.text(Objects.requireNonNull(lang.getString(ServerMessage)), NamedTextColor.RED))//失敗した内容
+                .append(Component.text("\n"))
+                .append(Component.text(Objects.requireNonNull(lang.getString(ServerExplanation)), NamedTextColor.RED))//原因説明
+                .append(Component.text("\n"))
+                .append(Component.text(Error, NamedTextColor.RED))//例外名
+        );
 
-
+        Bukkit.getServer().broadcast(Component.text(Objects.requireNonNull(lang.getString("causeplayer")) + " (" + (Objects.requireNonNull(lang.getString(PlayerMessage))) + ")", NamedTextColor.RED));//プレイヤー向け表示
     }
 
 }
