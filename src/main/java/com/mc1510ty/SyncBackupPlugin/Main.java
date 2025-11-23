@@ -1,3 +1,5 @@
+//©2025 1510ty
+//MIT License
 package com.mc1510ty.SyncBackupPlugin;
 
 import net.kyori.adventure.text.Component;
@@ -17,33 +19,87 @@ import java.util.zip.ZipOutputStream;
 
 public class Main extends JavaPlugin {
 
-    Path langfolder = Path.of(getDataFolder() + File.separator + "lang");
+    Path langFolder = getDataFolder().toPath().resolve("lang");
     String language;
     private FileConfiguration lang;
 
     @Override
     public void onEnable() {
+        //怒涛のconfigラッシュ
+        saveDefaultConfig(); //これだけBukkitAPI
         saveDefaultLang();
+        loadConfig();
+        Loadlang();
+        //バックアップタスクを開始！名前は適当()
         crontask();
     }
 
-    private void saveDefaultLang() {
+    @Override
+    public void onDisable() {
+        getLogger().info("Disable.");
+    }
 
+    private void loadConfig() {
+        //ここでlanguageを読み込み。
+        language = getConfig().getString("language");
+        //仮に 「language: 」とかなってたら、en_USにフォールバック。その他もen_USにフォールバック。
+        if (language == null || language.isEmpty()) {
+            language = "en_US";
+            getLogger().info("Language was empty, fallback to default: " + language);
+        }
+    }
 
+    private void saveDefaultLang()  {
 
-        if (!Files.exists(langfolder)) {
-            Files.createDirectory(langfolder);
+        //langフォルダ自体が存在しない場合、またはディレクトリでない場合は、
+        //ディレクトリの削除後(languageがディレクトリ以外の場合)、ディレクトリの作成とデフォルト言語の配置。
+        if (Files.notExists(langFolder) || !Files.isDirectory(langFolder)) {
+            try {
+                if (!Files.isDirectory(langFolder)) {
+                    Files.delete(langFolder);
+                }
+                Files.createDirectories(langFolder);
+                saveResource("lang/en_US.yml", false);
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
         }
 
+        //ファイルが1つもない場合は実行。ただし、ここでは指定している言語ファイルが存在するかのチェックはしていない。
+        try {
+            // フォルダが空かどうかをチェック
+            boolean isEmpty = true;
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(langFolder)) {
+                isEmpty = !stream.iterator().hasNext();
+            }
+            // 空の場合のみデフォルト言語ファイルを展開
+            if (isEmpty) {
+                    saveResource("lang" + File.separator + language + ".yml", false);
+            }
+            return;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void Loadlang() {
 
         File langFile = new File(getDataFolder(), "lang" + File.separator + language + ".yml");
+        if (!langFile.exists()) {
+            // デフォルトファイルを保存
+            try {
+                saveResource("lang" + File.separator + language + ".yml", false); // false = 上書きしない
+                getLogger().info("Language file not found. Created default: " + language + ".yml");
+            } catch (Exception e) {
+                e.printStackTrace();
+                getLogger().warning("Failed to save default language file!");
+            }
+        }
         lang = YamlConfiguration.loadConfiguration(langFile);
 
     }
-
 
 
     public void crontask() {
@@ -51,6 +107,8 @@ public class Main extends JavaPlugin {
         //多分忘れるから解説書いておきます。
 
         //※Lはおそらく秒って意味。デフォルトだとミリ秒なんじゃね？20はそのままtick。
+        //上記訂正。Lは秒って意味じゃなくlongって意味みたいです。明示的にlongを指定することで、intになるのを防ぐ。
+        //ちなみになぜtickのほうにはLがないかというと、秒のほうがLだとtickのほうもLに昇格するらしい。
         long saisyonojuppunn = 590L * 20;
         long syuukizikann = 3600L * 20;
         long taikizikann = 10L * 20;
@@ -59,12 +117,13 @@ public class Main extends JavaPlugin {
         Bukkit.getGlobalRegionScheduler().runAtFixedRate(this,
                 (task) -> {
                     //ifは多言語対応のため。
+                    //↑古い。言語ファイル形式に移行するためこの方法はもう使わない。
                     if (language.equals("ja")) {
                         Bukkit.getServer().broadcast(Component.text("10秒後にバックアップを開始します！数秒固まります！", NamedTextColor.YELLOW));
                         //↓これは10秒待機のやつ。
                         Bukkit.getGlobalRegionScheduler().runDelayed(this, t -> {
                             backup(); //バックアップ開始！Folia対応分で下囲んでないから大丈夫？とか思うかもしれないけど、実際のコードとしては、backup();の内容が丸々ここに来るイメージ。まあつまり気にしなくてOKってこと。
-                        }, taikizikann);//ここは10秒待機って意味ね。そのごバックアップ開始!
+                        }, taikizikann);//ここは10秒待機って意味ね。その後バックアップ開始!
                     }
                 }, saisyonojuppunn, syuukizikann
                 //上の謎の変数はこれはrunAtFixedRateの引数指定。初期待機時間と周回待機時間の指定。.getGlobalRegionSchedulerの引数指定ではないことに注意。
@@ -119,7 +178,7 @@ public class Main extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
             if (language.equals("ja")) {
-                Bukkit.getServer().sendMessage(Component.text("バックアップに失敗しました", NamedTextColor.RED)
+                    Bukkit.getServer().sendMessage(Component.text("バックアップに失敗しました", NamedTextColor.RED)
                         .append(Component.text("\n"))
                         .append(Component.text("フォルダの最大番号取得に失敗しました。", NamedTextColor.RED))
                         .append(Component.text("\n"))
@@ -287,6 +346,5 @@ public class Main extends JavaPlugin {
 
 
     }
-
 
 }
