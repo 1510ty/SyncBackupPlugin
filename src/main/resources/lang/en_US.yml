@@ -1,0 +1,53 @@
+plugin:
+  enable: SyncBackupPlugin has been enabled
+  disable: SyncBackupPlugin has been disabled
+
+message:
+  backup:
+    start_10mae: Backup will start in 10 seconds. The server may freeze for a few seconds.
+    start: Starting backup...
+    success: Backup completed successfully
+    copysuccess: World copy completed
+
+error:
+  backupfailed: Backup has failed
+  causeplayer: Backup failed. Please contact the server administrator.
+
+  explanation1: Possible causes include insufficient disk space or incorrect file permissions.
+
+  config:
+    savedefaultlang:
+      server: Failed to save the default language file
+      player: Failed to save default language
+
+  backupfoldercreatefailed:
+    server: Failed to create the backup directory
+    player: Failed to create backup directory
+
+  nowbackupfoldernumberfailed:
+    server: Failed to determine backup folder number
+    player: Failed to determine backup folder number
+
+  nowbackupfoldercreatefailed:
+    server: Failed to create the backup folder
+    player: Failed to create backup folder
+
+  copyfolderfailed:
+    server: Failed to copy world data
+    player: Failed to copy world data
+
+  worldzippingfailed:
+    server: Failed to zip the world data
+    player: Failed to zip world data
+
+  tempcopyworlddeletefailed:
+    server: Failed to delete temporary copied world data
+    player: Failed to delete temporary copied world
+
+  autodeletefailed:
+    server: Failed to automatically delete old backups
+    player: Automatic old-backup deletion failed
+
+  cleanupfailed:
+    server: Cleanup failed
+    player: Cleanup failed

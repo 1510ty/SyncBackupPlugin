@@ -1,1 +1,17 @@
-language: en_US
+#Specify the language file (do not write .yml)
+language: ja_JP
+
+#Time from server startup to first backup
+initialDelaySeconds: 600 #Default: 600
+
+#Backup latency beyond the first backup
+
+loopIntervalSeconds: 3600 #Default: 3600
+
+#Set how many previous backups to save. Specifying -1 means no limit.
+maxBackups: 20
+
+# Please enter 0-9.
+#The smaller the number, the faster the speed and the larger the file size.
+#The larger the number, the slower the speed and the smaller the file size.
+zipCompressionLevel: 1 #Default: 1

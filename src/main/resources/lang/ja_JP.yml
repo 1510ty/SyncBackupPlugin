@@ -1,6 +1,41 @@
 plugin:
   enable: SyncBackupPluginが有効化されました
   disable: SyncBackupPluginが無効化されました
+message:
+  backup:
+    start_10mae: 10秒後にバックアップを開始します 数秒固まります
+    start: バックアップを開始します
+    success: バックアップが完了しました
+    copysuccess: ワールドのコピーが完了しました
 error:
   backupfailed: バックアップに失敗しました
   causeplayer: バックアップに失敗しました 管理者に確認してください
+  explanation1: ディスク容量が不足している、権限が正しくないなどの可能性があります。
+  config:
+    savedefaultlang:
+      server: デフォルト言語の保存に失敗しました
+      player: デフォルト言語保存失敗
+  backupfoldercreatefailed:
+    server: バックアップ先フォルダーの作成に失敗しました
+    player: バックアップ先フォルダー作成失敗
+  nowbackupfoldernumberfailed:
+    server: 今バックアップのバックアップ先フォルダの番号決定に失敗しました
+    player: 今バックアップフォルダ番号決定失敗
+  nowbackupfoldercreatefailed:
+    server: 今バックアップのバックアップ先フォルダの作成に失敗しました
+    player: 今バックアップフォルダ作成失敗
+  copyfolderfailed:
+    server: ワールドデータのコピーに失敗しました。
+    player: ワールドデータコピー失敗
+  worldzippingfailed:
+    server: ワールドのzip化に失敗しました
+    player: ワールドzip化失敗
+  tempcopyworlddeletefailed:
+    server: 一時コピーワールドの削除に失敗しました
+    player: 一時コピーワールド削除失敗
+  autodeletefailed:
+    server: 古いバックアップの自動削除に失敗しました
+    player: 自動古いバックアップ削除失敗
+  cleanupfailed:
+    server: クリーンアップに失敗しました
+    player: クリーンアップ失敗
