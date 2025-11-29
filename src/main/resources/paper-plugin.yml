@@ -1,8 +1,7 @@
 name: SyncBackupPlugin
-version: '1.0.1'
+version: '1.0.2'
 main: com.mc1510ty.SyncBackupPlugin.Main
-description: A fast and safe synchronous world-backup plugin for Paper/Folia. Includes automatic backup rotation, language support, and simple configuration.
+description: A fast and safe synchronous world-backup plugin for Paper and its forks. Includes automatic backup rotation, language support, and simple configuration.
 author: 1510ty
 website: https://github.com/1510ty/SyncBackupPlugin/
-api-version: '1.21.8'
-folia-supported: true
+api-version: '1.20.6'

@@ -194,115 +194,111 @@ public class Main extends JavaPlugin {
         //ちなみになぜtickのほうにはLがないかというと、秒のほうがLだとtickのほうもLに昇格するらしい
 
         //Globalなんっちゃらはリージョンに依存しない処理を実行する場合に、Folia対応するさいに囲むだけ。これだけ。
-        Bukkit.getGlobalRegionScheduler().runAtFixedRate(this,
+        Bukkit.getScheduler().runTaskTimer(this,
                 (task) -> {
 
                     Bukkit.getServer().broadcast(Component.text(Objects.requireNonNull(lang.getString("message.backup.start_10mae")), NamedTextColor.YELLOW));
                     //↓これは10秒待機のやつ。
-                    Bukkit.getGlobalRegionScheduler().runDelayed(this, t -> {
-
+                    Bukkit.getScheduler().runTaskLater(this, t -> {
                         backup(); //バックアップ開始！Folia対応分で下囲んでないから大丈夫？とか思うかもしれないけど、実際のコードとしては、backup();の内容が丸々ここに来るイメージ。まあつまり気にしなくてOKってこと。
                     }, warningDelay);//ここは10秒待機って意味ね。その後バックアップ開始!
 
                 }, initialDelayTicks, loopIntervalTicks
-                //上の謎の変数はこれはrunAtFixedRateの引数指定。初期待機時間と周回待機時間の指定。.getGlobalRegionSchedulerの引数指定ではないことに注意。
+                //上の謎の変数はこれはrunTaskTimerの引数指定。初期待機時間と周回待機時間の指定。
         );
     }
 
-    private void backup(){
+    private void backup() {
 
         Bukkit.getServer().broadcast(Component.text(Objects.requireNonNull(lang.getString("message.backup.start")), NamedTextColor.YELLOW));
 
         //zip化や自動作成などはChatGPT製。
         //BukkitAPIはGPT苦手っぽい
-        //Javaはさすがに書けるらしい(知らんけどー)
+        //Javaはさすがに書けるらしい(知らんけどーw)
 
-        Bukkit.getGlobalRegionScheduler().runDelayed(this, task -> {
 
-            Path backupsDir = Paths.get("backups"); //パス設定。あとでconfigで変えられるようにしてもいいかもしれない
+        Path backupsDir = Paths.get("backups"); //パス設定。あとでconfigで変えられるようにしてもいいかもしれない
 
-            //バックアップ先フォルダ作成。
-            try {
-                if (!Files.exists(backupsDir)) { //バックアップフォルダが存在するか確認。
-                    Files.createDirectories(backupsDir);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                SendError("error.backupfoldercreatefailed.server", "error.explanation1", "error.backupfoldercreatefailed.player", "IOException");
-                CleanUp();
-                return;
+        //バックアップ先フォルダ作成。
+        try {
+            if (!Files.exists(backupsDir)) { //バックアップフォルダが存在するか確認。
+                Files.createDirectories(backupsDir);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            SendError("error.backupfoldercreatefailed.server", "error.explanation1", "error.backupfoldercreatefailed.player", "IOException");
+            CleanUp();
+            return;
+        }
 
-            int maxNumber = 0;
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(backupsDir, "*.zip")) { // *.zip に限定
-                for (Path path : stream) {
-                    if (Files.isRegularFile(path)) { // ファイルかどうか確認
-                        String fileName = path.getFileName().toString();
-                        // 拡張子を除去
-                        if (fileName.endsWith(".zip")) {
-                            String numberPart = fileName.substring(0, fileName.length() - 4); // ".zip" を削除
-                            try {
-                                int num = Integer.parseInt(numberPart);
-                                if (num >= maxNumber) maxNumber = num + 1;
-                            } catch (NumberFormatException ignored) {
-                                // 数字じゃないファイルは無視
-                            }
+        int maxNumber = 0;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(backupsDir, "*.zip")) { // *.zip に限定
+            for (Path path : stream) {
+                if (Files.isRegularFile(path)) { // ファイルかどうか確認
+                    String fileName = path.getFileName().toString();
+                    // 拡張子を除去
+                    if (fileName.endsWith(".zip")) {
+                        String numberPart = fileName.substring(0, fileName.length() - 4); // ".zip" を削除
+                        try {
+                            int num = Integer.parseInt(numberPart);
+                            if (num >= maxNumber) maxNumber = num + 1;
+                        } catch (NumberFormatException ignored) {
+                            // 数字じゃないファイルは無視
                         }
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                SendError("error.nowbackupfoldernumberfailed.server", "error.explanation1", "error.nowbackupfoldernumberfailed.player", "IOException");
-                return;
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            SendError("error.nowbackupfoldernumberfailed.server", "error.explanation1", "error.nowbackupfoldernumberfailed.player", "IOException");
+            return;
+        }
 
-            Path currentBackupDir = backupsDir.resolve(String.valueOf(maxNumber));
+        Path currentBackupDir = backupsDir.resolve(String.valueOf(maxNumber));
 
-            try {
-                Files.createDirectories(currentBackupDir);
-            } catch (IOException e) {
-                e.printStackTrace();
-                SendError("error.nowbackupfoldercreatefailed.server", "error.explanation1", "error.nowbackupfoldercreatefailed.player", "IOException");
-                CleanUp();
-                return;
-            }
+        try {
+            Files.createDirectories(currentBackupDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            SendError("error.nowbackupfoldercreatefailed.server", "error.explanation1", "error.nowbackupfoldercreatefailed.player", "IOException");
+            CleanUp();
+            return;
+        }
 
-            for (World world : Bukkit.getWorlds()) {
-                //すべてのワールドのオートセーブを切り、保存。
-                world.setAutoSave(false);
-                world.save();
+        for (World world : Bukkit.getWorlds()) {
+            //すべてのワールドのオートセーブを切り、保存。
+            world.setAutoSave(false);
+            world.save();
 
-                Path source = world.getWorldFolder().toPath();
-                Path target = currentBackupDir.resolve(world.getName());
+            Path source = world.getWorldFolder().toPath();
+            Path target = currentBackupDir.resolve(world.getName());
 
-                copyFolder(source, target);
+            copyFolder(source, target);
 
-            }
+        }
 
-            Bukkit.getServer().broadcast(Component.text(Objects.requireNonNull(lang.getString("message.backup.copysuccess")), NamedTextColor.GREEN));
+        Bukkit.getServer().broadcast(Component.text(Objects.requireNonNull(lang.getString("message.backup.copysuccess")), NamedTextColor.GREEN));
 
-            for (World world : Bukkit.getWorlds()) {
-                world.setAutoSave(true);
-            }
+        for (World world : Bukkit.getWorlds()) {
+            world.setAutoSave(true);
+        }
 
-            int finalMaxNumber = maxNumber;
-            Bukkit.getAsyncScheduler().runNow(this, scheduledTask -> {
-                //zip化を非同期で実行。
+        int finalMaxNumber = maxNumber;
+        Bukkit.getAsyncScheduler().runNow(this, scheduledTask -> {
+            //zip化を非同期で実行。
 
-                Path source = currentBackupDir;
-                Path target = backupsDir.resolve(finalMaxNumber + ".zip");
+            Path source = currentBackupDir;
+            Path target = backupsDir.resolve(finalMaxNumber + ".zip");
 
-                zipWorldFolder(source, target);
-                deleteFolder(source);
+            zipWorldFolder(source, target);
+            deleteFolder(source);
 
-                cleanupOldBackups();
+            cleanupOldBackups();
 
-                Bukkit.getGlobalRegionScheduler().run(this, scheduledTask1 -> {
-                    Bukkit.getServer().broadcast(Component.text(Objects.requireNonNull(lang.getString("message.backup.success")), NamedTextColor.GREEN));
-                });
-
+            Bukkit.getScheduler().runTask(this, bukkitTask -> {
+                Bukkit.getServer().broadcast(Component.text(Objects.requireNonNull(lang.getString("message.backup.success")), NamedTextColor.GREEN));
             });
-        },1);
+        });
     }
 
     //これより下汎用
@@ -421,7 +417,7 @@ public class Main extends JavaPlugin {
 
     private void SendError(String ServerMessage, String ServerExplanation, String PlayerMessage, String Error) {
 
-        Bukkit.getGlobalRegionScheduler().run(this, scheduledTask -> {
+        Bukkit.getScheduler().runTask(this, scheduledTask -> {
             Bukkit.getConsoleSender().sendMessage(Component.text(Objects.requireNonNull(lang.getString("error.backupfailed")), NamedTextColor.RED)//エラーメッセージ
                     .append(Component.text("\n"))
                     .append(Component.text(Objects.requireNonNull(lang.getString(ServerMessage)), NamedTextColor.RED))//失敗した内容

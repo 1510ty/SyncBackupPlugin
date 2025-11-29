@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.mc1510ty"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     maven {
@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
 }
 
 java {
