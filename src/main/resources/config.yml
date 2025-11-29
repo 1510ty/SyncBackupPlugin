@@ -1,5 +1,5 @@
 #Specify the language file (do not write .yml)
-language: ja_JP
+language: en_US
 
 #Time from server startup to first backup
 initialDelaySeconds: 600 #Default: 600
