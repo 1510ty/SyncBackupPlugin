@@ -1,4 +1,4 @@
-name: Build Bukkit Plugin
+name: Build Plugin
 
 on:
   push:
@@ -45,10 +45,10 @@ jobs:
           mkdir -p build/artifacts
           # 最初に見つかったjarファイルを対象にする場合
           original_jar=$(ls build/libs/*.jar | head -n 1)
-          cp "$original_jar" "build/artifacts/SyncChat-${{ steps.git.outputs.commit_id }}.jar"
+          cp "$original_jar" "build/artifacts/SyncBackupPlugin-${{ steps.git.outputs.commit_id }}.jar"
 
       - name: Upload plugin jar artifact
         uses: actions/upload-artifact@v4
         with:
-          name: plugin-jar
+          name: BuildJar
           path: build/artifacts/*.jar
