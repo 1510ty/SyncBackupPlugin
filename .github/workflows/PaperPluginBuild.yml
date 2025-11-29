@@ -1,0 +1,54 @@
+name: Build Bukkit Plugin
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Get short Git commit ID
+        id: git
+        run: echo "commit_id=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.lockfile') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Rename output jar
+        run: |
+          mkdir -p build/artifacts
+          # 最初に見つかったjarファイルを対象にする場合
+          original_jar=$(ls build/libs/*.jar | head -n 1)
+          cp "$original_jar" "build/artifacts/SyncChat-${{ steps.git.outputs.commit_id }}.jar"
+
+      - name: Upload plugin jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-jar
+          path: build/artifacts/*.jar
